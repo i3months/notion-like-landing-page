@@ -1,15 +1,45 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import '@/styles/theme.css';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { payload } from '@/payload/config';
+import { validatePayload } from '@/lib/payload/validator';
+import { loadTheme } from '@/lib/theme/loader';
 
+// Validate payload at build time
+const validation = validatePayload(payload);
+if (!validation.valid) {
+  console.error('❌ Payload validation failed:');
+  validation.errors?.forEach((err) => console.error(`  - ${err}`));
+  throw new Error('Invalid payload configuration. Please fix the errors above.');
+}
+
+// Load and process theme
+const { styleObject } = loadTheme(payload.theme);
+
+// Generate metadata from payload
 export const metadata: Metadata = {
-  title: 'Notion-like Landing Page',
-  description: 'A static landing page generator',
+  metadataBase: payload.global.baseUrl ? new URL(payload.global.baseUrl) : undefined,
+  title: payload.global.title,
+  description: payload.global.description,
+  icons: {
+    icon: payload.global.favicon || '/favicon.ico',
+  },
+  openGraph: payload.global.seo?.openGraph
+    ? {
+        title: payload.global.seo.openGraph.title || payload.global.title,
+        description: payload.global.seo.openGraph.description || payload.global.description,
+        images: payload.global.seo.openGraph.images,
+      }
+    : undefined,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" style={styleObject}>
+      <body>
+        <PageLayout navigation={payload.navigation}>{children}</PageLayout>
+      </body>
     </html>
   );
 }
