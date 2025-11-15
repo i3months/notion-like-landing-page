@@ -1,0 +1,102 @@
+/**
+ * Theme CSS Custom Properties
+ * Notion/Obsidian-inspired color palette with light and dark mode support
+ */
+
+:root {
+  /* Primary colors - Blue accent for links and interactive elements */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+
+  /* Secondary colors - Purple accent for highlights */
+  --color-secondary: #7c3aed;
+  --color-secondary-hover: #6d28d9;
+
+  /* Background colors */
+  --color-background: #ffffff;
+
+  /* Text colors */
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+
+  /* Sidebar colors */
+  --color-sidebar-bg: #f9fafb;
+  --color-sidebar-text: #374151;
+  --color-sidebar-hover: #f3f4f6;
+  --color-sidebar-active: #e5e7eb;
+
+  /* Code block colors */
+  --color-code-bg: #f3f4f6;
+  --color-code-text: #1f2937;
+
+  /* Border colors */
+  --color-border: #e5e7eb;
+}
+
+/* Dark mode color scheme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Primary colors - Lighter blue for better contrast */
+    --color-primary: #3b82f6;
+    --color-primary-hover: #60a5fa;
+
+    /* Secondary colors - Lighter purple */
+    --color-secondary: #8b5cf6;
+    --color-secondary-hover: #a78bfa;
+
+    /* Background colors */
+    --color-background: #111827;
+
+    /* Text colors */
+    --color-text: #f9fafb;
+    --color-text-muted: #9ca3af;
+
+    /* Sidebar colors */
+    --color-sidebar-bg: #1f2937;
+    --color-sidebar-text: #e5e7eb;
+    --color-sidebar-hover: #374151;
+    --color-sidebar-active: #4b5563;
+
+    /* Code block colors */
+    --color-code-bg: #374151;
+    --color-code-text: #f9fafb;
+
+    /* Border colors */
+    --color-border: #374151;
+  }
+}
+
+/* Optional: Manual dark mode class override */
+[data-theme='dark'] {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-secondary: #8b5cf6;
+  --color-secondary-hover: #a78bfa;
+  --color-background: #111827;
+  --color-text: #f9fafb;
+  --color-text-muted: #9ca3af;
+  --color-sidebar-bg: #1f2937;
+  --color-sidebar-text: #e5e7eb;
+  --color-sidebar-hover: #374151;
+  --color-sidebar-active: #4b5563;
+  --color-code-bg: #374151;
+  --color-code-text: #f9fafb;
+  --color-border: #374151;
+}
+
+[data-theme='light'] {
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-secondary: #7c3aed;
+  --color-secondary-hover: #6d28d9;
+  --color-background: #ffffff;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-sidebar-bg: #f9fafb;
+  --color-sidebar-text: #374151;
+  --color-sidebar-hover: #f3f4f6;
+  --color-sidebar-active: #e5e7eb;
+  --color-code-bg: #f3f4f6;
+  --color-code-text: #1f2937;
+  --color-border: #e5e7eb;
+}
