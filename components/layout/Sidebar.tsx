@@ -37,8 +37,9 @@ function NavigationItemComponent({ item, currentPath, level }: NavigationItemCom
         {hasChildren && (
           <button
             onClick={handleToggle}
-            className="mr-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            className="mr-1 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors touch-manipulation"
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
+            aria-expanded={isExpanded}
           >
             <svg
               className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
@@ -53,10 +54,10 @@ function NavigationItemComponent({ item, currentPath, level }: NavigationItemCom
         {item.path ? (
           <Link
             href={`/${item.path}`}
-            className={`flex-1 px-3 py-2 rounded-md text-sm transition-colors ${
+            className={`flex-1 px-3 py-2 rounded-md text-sm transition-colors touch-manipulation ${
               isActive
                 ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700'
             } ${!hasChildren ? 'ml-5' : ''}`}
           >
             {item.icon && <span className="mr-2">{item.icon}</span>}

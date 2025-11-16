@@ -32,8 +32,9 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
         <div className="flex items-center justify-between">
           <button
             onClick={toggleMobileMenu}
-            className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+            className="p-2 -ml-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors active:bg-gray-200 dark:active:bg-gray-700 touch-manipulation"
             aria-label="Toggle menu"
+            aria-expanded={isMobileMenuOpen}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -59,7 +60,9 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
 
         {/* Main content area */}
         <main className="flex-1 min-w-0">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</div>
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+            {children}
+          </div>
         </main>
       </div>
     </div>
