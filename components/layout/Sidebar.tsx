@@ -5,18 +5,37 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NavigationItem } from '@/lib/payload/types';
 
+/**
+ * Props for the Sidebar component
+ */
 interface SidebarProps {
+  /** Array of top-level navigation items */
   navigation: NavigationItem[];
 }
 
+/**
+ * Props for the NavigationItemComponent
+ */
 interface NavigationItemComponentProps {
+  /** Navigation item to render */
   item: NavigationItem;
+  /** Current page path for highlighting active item */
   currentPath: string;
+  /** Nesting level for indentation (0 = top level) */
   level: number;
 }
 
 /**
  * Recursive navigation item component with expand/collapse functionality
+ *
+ * Renders a single navigation item with support for nested children.
+ * Items with children can be expanded/collapsed. Items with paths are
+ * rendered as links and highlighted when active.
+ *
+ * @param props - Component props
+ * @param props.item - Navigation item to render
+ * @param props.currentPath - Current page path for active state
+ * @param props.level - Nesting depth for indentation
  */
 function NavigationItemComponent({ item, currentPath, level }: NavigationItemComponentProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -91,8 +110,32 @@ function NavigationItemComponent({ item, currentPath, level }: NavigationItemCom
 }
 
 /**
- * Sidebar component displaying hierarchical navigation
- * Hidden on mobile, visible on desktop
+ * Desktop sidebar component displaying hierarchical navigation
+ *
+ * Renders a fixed sidebar on the left side of the page with the full
+ * navigation tree. Supports unlimited nesting with expand/collapse
+ * functionality. Automatically highlights the active page.
+ *
+ * Hidden on mobile viewports (< 768px), where the MobileMenu component
+ * is used instead.
+ *
+ * @param props - Component props
+ * @param props.navigation - Array of top-level navigation items to display
+ *
+ * @example
+ * ```tsx
+ * const navigation = [
+ *   { name: 'Home', path: 'home' },
+ *   {
+ *     name: 'Guides',
+ *     children: [
+ *       { name: 'Quick Start', path: 'guides/quick-start' }
+ *     ]
+ *   }
+ * ];
+ *
+ * <Sidebar navigation={navigation} />
+ * ```
  */
 export function Sidebar({ navigation }: SidebarProps) {
   const pathname = usePathname();

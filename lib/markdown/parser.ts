@@ -3,15 +3,49 @@ import path from 'path';
 import matter from 'gray-matter';
 
 /**
- * Reads and parses a Markdown file from the content directory
- * @param filePath - Path relative to content directory (without .md extension)
- * @returns Parsed content and frontmatter
- * @throws Error if file cannot be read or does not exist
+ * Result of parsing a Markdown file
  */
-export async function parseMarkdownFile(filePath: string): Promise<{
+export interface ParsedMarkdown {
+  /** Markdown content without frontmatter */
   content: string;
+  /** Parsed frontmatter metadata as key-value pairs */
   frontmatter: Record<string, any>;
-}> {
+}
+
+/**
+ * Reads and parses a Markdown file from the content directory
+ *
+ * This function loads a Markdown file, extracts any YAML frontmatter,
+ * and returns both the content and metadata separately. The frontmatter
+ * can contain arbitrary metadata like title, author, date, etc.
+ *
+ * Files are expected to be in the `content/` directory with a `.md` extension.
+ * The function automatically appends `.md` to the provided path.
+ *
+ * @param filePath - Path to the Markdown file relative to the content directory (without .md extension)
+ * @returns Promise resolving to parsed content and frontmatter
+ * @throws Error if the file cannot be read or does not exist
+ *
+ * @example
+ * ```typescript
+ * // For a file at content/guides/quick-start.md
+ * const result = await parseMarkdownFile('guides/quick-start');
+ *
+ * console.log(result.frontmatter.title); // "Quick Start Guide"
+ * console.log(result.content); // "# Quick Start\n\nWelcome..."
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Handling errors
+ * try {
+ *   const result = await parseMarkdownFile('nonexistent');
+ * } catch (error) {
+ *   console.error('Failed to load content:', error.message);
+ * }
+ * ```
+ */
+export async function parseMarkdownFile(filePath: string): Promise<ParsedMarkdown> {
   const fullPath = path.join(process.cwd(), 'content', `${filePath}.md`);
 
   try {

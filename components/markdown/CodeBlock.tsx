@@ -2,13 +2,34 @@
 
 import React, { useState } from 'react';
 
+/**
+ * Props for the CodeBlock component
+ */
 interface CodeBlockProps {
+  /** Programming language identifier for syntax highlighting */
   language: string;
+  /** Source code to display */
   code: string;
 }
 
 /**
- * Renders a syntax-highlighted code block with copy functionality
+ * Renders a syntax-highlighted code block with copy-to-clipboard functionality
+ *
+ * This component displays code with a language label and a copy button.
+ * When the copy button is clicked, the code is copied to the clipboard
+ * and the button shows a confirmation message for 2 seconds.
+ *
+ * @param props - Component props
+ * @param props.language - Programming language identifier (e.g., 'typescript', 'python', 'bash')
+ * @param props.code - The source code to display
+ *
+ * @example
+ * ```tsx
+ * <CodeBlock
+ *   language="typescript"
+ *   code="const greeting = 'Hello, World!';"
+ * />
+ * ```
  */
 export function CodeBlock({ language, code }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);

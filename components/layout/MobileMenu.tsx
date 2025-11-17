@@ -5,21 +5,39 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NavigationItem } from '@/lib/payload/types';
 
+/**
+ * Props for the MobileMenu component
+ */
 interface MobileMenuProps {
+  /** Array of top-level navigation items */
   navigation: NavigationItem[];
+  /** Whether the mobile menu is currently open */
   isOpen: boolean;
+  /** Callback function to close the menu */
   onClose: () => void;
 }
 
+/**
+ * Props for the MobileNavigationItem component
+ */
 interface MobileNavigationItemProps {
+  /** Navigation item to render */
   item: NavigationItem;
+  /** Current page path for highlighting active item */
   currentPath: string;
+  /** Nesting level for indentation (0 = top level) */
   level: number;
+  /** Callback function when navigation occurs */
   onNavigate: () => void;
 }
 
 /**
  * Recursive mobile navigation item component
+ *
+ * Renders a single navigation item optimized for mobile with touch-friendly
+ * targets and automatic menu closing on navigation.
+ *
+ * @param props - Component props
  */
 function MobileNavigationItem({ item, currentPath, level, onNavigate }: MobileNavigationItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -95,8 +113,30 @@ function MobileNavigationItem({ item, currentPath, level, onNavigate }: MobileNa
 }
 
 /**
- * Mobile menu with hamburger button and slide-out drawer
- * Visible only on mobile devices
+ * Mobile navigation menu with slide-out drawer
+ *
+ * Displays a full-screen overlay menu for mobile devices. The menu slides
+ * in from the left and includes a backdrop overlay. Automatically prevents
+ * body scrolling when open and closes when a navigation link is clicked.
+ *
+ * Visible only on mobile viewports (< 768px). On desktop, the Sidebar
+ * component is used instead.
+ *
+ * @param props - Component props
+ * @param props.navigation - Array of top-level navigation items to display
+ * @param props.isOpen - Whether the menu is currently open
+ * @param props.onClose - Callback function to close the menu
+ *
+ * @example
+ * ```tsx
+ * const [isMenuOpen, setIsMenuOpen] = useState(false);
+ *
+ * <MobileMenu
+ *   navigation={navigationItems}
+ *   isOpen={isMenuOpen}
+ *   onClose={() => setIsMenuOpen(false)}
+ * />
+ * ```
  */
 export function MobileMenu({ navigation, isOpen, onClose }: MobileMenuProps) {
   const pathname = usePathname();

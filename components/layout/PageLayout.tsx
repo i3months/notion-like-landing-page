@@ -5,14 +5,40 @@ import { NavigationItem } from '@/lib/payload/types';
 import { Sidebar } from './Sidebar';
 import { MobileMenu } from './MobileMenu';
 
+/**
+ * Props for the PageLayout component
+ */
 interface PageLayoutProps {
+  /** Array of top-level navigation items */
   navigation: NavigationItem[];
+  /** Page content to render in the main area */
   children: React.ReactNode;
 }
 
 /**
- * Main page layout with responsive sidebar and mobile menu
- * Manages mobile menu visibility state
+ * Main page layout wrapper with responsive navigation
+ *
+ * Provides the overall page structure with:
+ * - Fixed desktop sidebar (visible on screens >= 768px)
+ * - Mobile header with hamburger menu (visible on screens < 768px)
+ * - Slide-out mobile menu drawer
+ * - Centered content area with responsive padding
+ *
+ * Manages the mobile menu open/close state internally.
+ *
+ * @param props - Component props
+ * @param props.navigation - Array of navigation items to display in sidebar/menu
+ * @param props.children - Page content to render in the main content area
+ *
+ * @example
+ * ```tsx
+ * import payload from './payload/config';
+ *
+ * <PageLayout navigation={payload.navigation}>
+ *   <h1>Welcome</h1>
+ *   <p>This is the page content.</p>
+ * </PageLayout>
+ * ```
  */
 export function PageLayout({ navigation, children }: PageLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

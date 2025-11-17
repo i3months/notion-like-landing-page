@@ -3,12 +3,45 @@ import ReactMarkdown from 'react-markdown';
 import { remarkPlugins, rehypePlugins } from '@/lib/markdown/plugins';
 import { CodeBlock } from '@/components/markdown/CodeBlock';
 
+/**
+ * Props for the MarkdownRenderer component
+ */
 interface MarkdownRendererProps {
+  /** Raw Markdown content to render */
   content: string;
 }
 
 /**
- * Renders Markdown content with styled components and syntax highlighting
+ * Renders Markdown content as styled HTML with syntax highlighting
+ *
+ * This component transforms Markdown text into beautifully styled HTML using
+ * react-markdown with custom component mappings. It supports:
+ * - GitHub Flavored Markdown (tables, task lists, strikethrough)
+ * - Syntax-highlighted code blocks
+ * - Responsive typography
+ * - Dark mode support
+ * - Semantic HTML elements
+ *
+ * The component applies Tailwind CSS classes for consistent styling and
+ * automatically handles external links with proper security attributes.
+ *
+ * @param props - Component props
+ * @param props.content - Raw Markdown string to render
+ *
+ * @example
+ * ```tsx
+ * const markdown = `
+ * # Hello World
+ *
+ * This is a **bold** statement with a [link](https://example.com).
+ *
+ * \`\`\`typescript
+ * const greeting = 'Hello!';
+ * \`\`\`
+ * `;
+ *
+ * <MarkdownRenderer content={markdown} />
+ * ```
  */
 export function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
