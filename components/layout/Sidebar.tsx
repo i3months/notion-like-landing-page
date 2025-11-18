@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { NavigationItem } from '@/lib/payload/types';
 import { useTabStore } from '@/lib/store/tabStore';
 
@@ -105,19 +106,9 @@ function NavigationItemComponent({
               aria-label={isExpanded ? 'Collapse' : 'Expand'}
               aria-expanded={isExpanded}
             >
-              <svg
+              <ChevronRight
                 className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              />
             </button>
           )}
           {item.path ? (
@@ -277,19 +268,11 @@ export function Sidebar({ navigation }: SidebarProps) {
           aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          <svg
-            className={`w-5 h-5 transition-transform ${sidebarCollapsed ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-            />
-          </svg>
+          {sidebarCollapsed ? (
+            <ChevronsRight className="w-5 h-5" />
+          ) : (
+            <ChevronsLeft className="w-5 h-5" />
+          )}
         </button>
       </div>
 
