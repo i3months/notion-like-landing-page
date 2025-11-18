@@ -11,6 +11,10 @@ import { NavigationItem } from '@/lib/payload/types';
 interface SidebarProps {
   /** Array of top-level navigation items */
   navigation: NavigationItem[];
+  /** Whether the sidebar is collapsed */
+  isCollapsed?: boolean;
+  /** Callback to toggle sidebar collapse state */
+  onToggle?: () => void;
 }
 
 /**
@@ -137,22 +141,53 @@ function NavigationItemComponent({ item, currentPath, level }: NavigationItemCom
  * <Sidebar navigation={navigation} />
  * ```
  */
-export function Sidebar({ navigation }: SidebarProps) {
+export function Sidebar({ navigation, isCollapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const currentPath = pathname === '/' ? '' : pathname.slice(1);
 
   return (
-    <aside className="hidden md:block w-64 h-screen sticky top-0 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 overflow-y-auto">
-      <nav className="p-4">
-        {navigation.map((item, index) => (
-          <NavigationItemComponent
-            key={`${item.name}-${index}`}
-            item={item}
-            currentPath={currentPath}
-            level={0}
-          />
-        ))}
-      </nav>
+    <aside
+      className={`hidden md:block h-screen sticky top-0 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 overflow-y-auto transition-all duration-300 ${
+        isCollapsed ? 'w-16' : 'w-64'
+      }`}
+    >
+      {/* Toggle button */}
+      <div className="flex justify-end p-2 border-b border-gray-200 dark:border-gray-800">
+        <button
+          onClick={onToggle}
+          className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <svg
+            className={`w-5 h-5 transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Navigation */}
+      {!isCollapsed && (
+        <nav className="p-4">
+          {navigation.map((item, index) => (
+            <NavigationItemComponent
+              key={`${item.name}-${index}`}
+              item={item}
+              currentPath={currentPath}
+              level={0}
+            />
+          ))}
+        </nav>
+      )}
     </aside>
   );
 }
