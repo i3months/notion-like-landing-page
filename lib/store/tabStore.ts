@@ -1,0 +1,117 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+export interface Tab {
+  id: string;
+  title: string;
+  path: string;
+  scrollPosition?: number;
+}
+
+interface TabStore {
+  tabs: Tab[];
+  activeTabId: string | null;
+  addTab: (tab?: Omit<Tab, 'id'>) => string;
+  removeTab: (id: string) => void;
+  setActiveTab: (id: string) => void;
+  updateTabPath: (id: string, path: string, title: string) => void;
+  updateTabScroll: (id: string, scrollPosition: number) => void;
+  closeOtherTabs: (id: string) => void;
+  closeTabsToRight: (id: string) => void;
+}
+
+export const useTabStore = create<TabStore>()(
+  persist(
+    (set, get) => ({
+      tabs: [],
+      activeTabId: null,
+
+      addTab: (tab) => {
+        const { tabs } = get();
+
+        // Create new tab with default title "Untitled"
+        const newTab: Tab = {
+          title: tab?.title || 'Untitled',
+          path: tab?.path || '',
+          id: `tab-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+        };
+
+        set({
+          tabs: [...tabs, newTab],
+          activeTabId: newTab.id,
+        });
+
+        return newTab.id;
+      },
+
+      removeTab: (id) => {
+        const { tabs, activeTabId } = get();
+        const index = tabs.findIndex((t) => t.id === id);
+
+        if (index === -1) return;
+
+        const newTabs = tabs.filter((t) => t.id !== id);
+
+        // If closed tab was active, activate adjacent tab
+        let newActiveTabId = activeTabId;
+        if (activeTabId === id) {
+          if (newTabs.length > 0) {
+            // Activate right tab if exists, otherwise left
+            newActiveTabId = newTabs[Math.min(index, newTabs.length - 1)]?.id || null;
+          } else {
+            newActiveTabId = null;
+          }
+        }
+
+        set({
+          tabs: newTabs,
+          activeTabId: newActiveTabId,
+        });
+      },
+
+      setActiveTab: (id) => {
+        set({ activeTabId: id });
+      },
+
+      updateTabPath: (id, path, title) => {
+        set((state) => ({
+          tabs: state.tabs.map((tab) => (tab.id === id ? { ...tab, path, title } : tab)),
+        }));
+      },
+
+      updateTabScroll: (id, scrollPosition) => {
+        set((state) => ({
+          tabs: state.tabs.map((tab) => (tab.id === id ? { ...tab, scrollPosition } : tab)),
+        }));
+      },
+
+      closeOtherTabs: (id) => {
+        set((state) => ({
+          tabs: state.tabs.filter((tab) => tab.id === id),
+          activeTabId: id,
+        }));
+      },
+
+      closeTabsToRight: (id) => {
+        set((state) => {
+          const index = state.tabs.findIndex((tab) => tab.id === id);
+          return {
+            tabs: state.tabs.slice(0, index + 1),
+          };
+        });
+      },
+    }),
+    {
+      name: 'tab-storage',
+      // Exclude scroll position when saving to localStorage
+      partialize: (state) => ({
+        tabs: state.tabs.map((tab) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { scrollPosition, ...rest } = tab;
+          return rest;
+        }),
+        activeTabId: state.activeTabId,
+      }),
+    },
+  ),
+);
