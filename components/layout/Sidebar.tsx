@@ -291,7 +291,7 @@ export function Sidebar({ navigation }: SidebarProps) {
             <Search className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search titles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none min-w-0"
