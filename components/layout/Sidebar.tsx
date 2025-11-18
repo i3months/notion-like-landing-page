@@ -121,7 +121,7 @@ function NavigationItemComponent({
             <Link
               href={`/${item.path}`}
               onClick={handleLinkClick}
-              className={`flex-1 px-3 py-2 rounded-md text-sm transition-colors touch-manipulation ${
+              className={`flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
                 isActive
                   ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700'
@@ -132,7 +132,7 @@ function NavigationItemComponent({
             </Link>
           ) : (
             <div
-              className={`flex-1 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-100 ${
+              className={`flex-1 px-2 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 ${
                 !hasChildren ? 'ml-5' : ''
               }`}
             >
@@ -320,7 +320,7 @@ export function Sidebar({ navigation }: SidebarProps) {
 
       {/* Navigation */}
       {!sidebarCollapsed && (
-        <nav className="p-4">
+        <nav className="p-2">
           {filteredNavigation.length > 0 ? (
             filteredNavigation.map((item, index) => (
               <NavigationItemComponent
