@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronRight, ChevronsLeft, ChevronsRight, Search } from 'lucide-react';
 import { NavigationItem } from '@/lib/payload/types';
 import { useTabStore } from '@/lib/store/tabStore';
 
@@ -192,6 +192,7 @@ export function Sidebar({ navigation }: SidebarProps) {
 
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const MIN_WIDTH = 200;
   const MAX_WIDTH = 600;
@@ -251,6 +252,29 @@ export function Sidebar({ navigation }: SidebarProps) {
     setIsResizing(true);
   };
 
+  // Filter navigation items based on search query
+  const filterNavigation = (items: NavigationItem[], query: string): NavigationItem[] => {
+    if (!query.trim()) return items;
+
+    const lowerQuery = query.toLowerCase();
+
+    return items.reduce<NavigationItem[]>((acc, item) => {
+      const matchesName = item.name.toLowerCase().includes(lowerQuery);
+      const filteredChildren = item.children ? filterNavigation(item.children, query) : [];
+
+      if (matchesName || filteredChildren.length > 0) {
+        acc.push({
+          ...item,
+          children: filteredChildren.length > 0 ? filteredChildren : item.children,
+        });
+      }
+
+      return acc;
+    }, []);
+  };
+
+  const filteredNavigation = filterNavigation(navigation, searchQuery);
+
   return (
     <aside
       ref={sidebarRef}
@@ -260,11 +284,23 @@ export function Sidebar({ navigation }: SidebarProps) {
         transition: isResizing ? 'none' : 'width 0.3s ease',
       }}
     >
-      {/* Toggle button */}
-      <div className="flex items-center justify-end px-2 py-1 border-b border-gray-200 dark:border-gray-800">
+      {/* Search and Toggle */}
+      <div className="flex items-center gap-2 px-2 py-1 border-b border-gray-200 dark:border-gray-800">
+        {!sidebarCollapsed && (
+          <div className="flex-1 flex items-center gap-2 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md min-w-0">
+            <Search className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none min-w-0"
+            />
+          </div>
+        )}
         <button
           onClick={handleToggle}
-          className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
+          className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors flex-shrink-0"
           aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
@@ -279,15 +315,21 @@ export function Sidebar({ navigation }: SidebarProps) {
       {/* Navigation */}
       {!sidebarCollapsed && (
         <nav className="p-4">
-          {navigation.map((item, index) => (
-            <NavigationItemComponent
-              key={`${item.name}-${index}`}
-              item={item}
-              currentPath={currentPath}
-              level={0}
-              parentLines={[]}
-            />
-          ))}
+          {filteredNavigation.length > 0 ? (
+            filteredNavigation.map((item, index) => (
+              <NavigationItemComponent
+                key={`${item.name}-${index}`}
+                item={item}
+                currentPath={currentPath}
+                level={0}
+                parentLines={[]}
+              />
+            ))
+          ) : (
+            <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+              No results found
+            </div>
+          )}
         </nav>
       )}
 
