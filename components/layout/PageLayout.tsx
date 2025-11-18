@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { NavigationItem } from '@/lib/payload/types';
+import { useTabStore } from '@/lib/store/tabStore';
 import { Sidebar } from './Sidebar';
 import { MobileMenu } from './MobileMenu';
 import { TabBar } from './TabBar';
@@ -44,6 +46,8 @@ interface PageLayoutProps {
  */
 export function PageLayout({ navigation, children }: PageLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const { activeTabId } = useTabStore();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -52,6 +56,59 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  // Sync active tab with current URL when pathname changes
+  useEffect(() => {
+    if (!activeTabId) {
+      console.log('[PageLayout] No active tab ID');
+      return;
+    }
+
+    // Remove leading and trailing slashes
+    const currentPath = pathname === '/' ? '' : pathname.slice(1).replace(/\/$/, '');
+    console.log('[PageLayout] pathname:', pathname, 'currentPath:', currentPath);
+
+    // Find navigation item that matches current path
+    const findNavItem = (items: NavigationItem[], path: string): NavigationItem | null => {
+      for (const item of items) {
+        if (item.path === path) return item;
+        if (item.children) {
+          const found = findNavItem(item.children, path);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const navItem = findNavItem(navigation, currentPath);
+    const isHomePage = currentPath === '';
+
+    // Get the latest state and update
+    const { tabs, updateTabPath } = useTabStore.getState();
+    const activeTab = tabs.find((tab) => tab.id === activeTabId);
+
+    console.log('[PageLayout] activeTab:', activeTab);
+    console.log('[PageLayout] navItem:', navItem);
+
+    if (!activeTab) {
+      console.log('[PageLayout] Active tab not found');
+      return;
+    }
+
+    if (isHomePage) {
+      // Home page - update to "Home"
+      if (activeTab.path !== '') {
+        console.log('[PageLayout] Updating to Home');
+        updateTabPath(activeTabId, '', 'Home');
+      }
+    } else if (navItem && activeTab.path !== currentPath) {
+      // Regular page - update to match navigation item
+      console.log('[PageLayout] Updating tab:', activeTabId, 'to', navItem.name, currentPath);
+      updateTabPath(activeTabId, currentPath, navItem.name);
+    } else {
+      console.log('[PageLayout] No update needed or navItem not found');
+    }
+  }, [pathname, activeTabId, navigation]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
