@@ -3,11 +3,42 @@ import { MarkdownRenderer } from '@/components/markdown/MarkdownRenderer';
 import { extractAllPaths } from '@/lib/navigation/builder';
 import { payload } from '@/payload/config';
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 
 interface PageProps {
   params: {
     slug: string[];
   };
+}
+
+/**
+ * Generate metadata for each page based on frontmatter
+ */
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = params;
+  const path = slug.join('/');
+
+  try {
+    const { frontmatter } = await parseMarkdownFile(path);
+
+    return {
+      title: frontmatter.title || payload.global.title,
+      description: frontmatter.description || payload.global.description,
+      icons: {
+        icon: frontmatter.favicon || payload.global.favicon || '/favicon.ico',
+      },
+      openGraph: {
+        title: frontmatter.title || payload.global.title,
+        description: frontmatter.description || payload.global.description,
+        images: frontmatter.ogImage ? [frontmatter.ogImage] : undefined,
+      },
+    };
+  } catch {
+    return {
+      title: payload.global.title,
+      description: payload.global.description,
+    };
+  }
 }
 
 /**
