@@ -1,45 +1,49 @@
-import { parseMarkdownFile } from '@/lib/markdown/parser';
-import { MarkdownRenderer } from '@/components/markdown/MarkdownRenderer';
-import { payload } from '@/payload/config';
-import type { Metadata } from 'next';
+'use client';
+
+import { useTabStore } from '@/lib/store/tabStore';
 
 /**
- * Generate metadata for home page based on intro.md frontmatter
+ * Home page - shows empty state when no tabs are open
  */
-export async function generateMetadata(): Promise<Metadata> {
-  try {
-    const { frontmatter } = await parseMarkdownFile('intro');
+export default function Home() {
+  const { tabs } = useTabStore();
 
-    return {
-      title: frontmatter.title || payload.global.title,
-      description: frontmatter.description || payload.global.description,
-      icons: {
-        icon: frontmatter.favicon || payload.global.favicon || '/favicon.ico',
-      },
-      openGraph: {
-        title: frontmatter.title || payload.global.title,
-        description: frontmatter.description || payload.global.description,
-        images: frontmatter.ogImage ? [frontmatter.ogImage] : undefined,
-      },
-    };
-  } catch {
-    return {
-      title: payload.global.title,
-      description: payload.global.description,
-    };
+  // Show empty state when no tabs exist
+  if (tabs.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <div className="max-w-md">
+          <svg
+            className="w-20 h-20 mx-auto mb-6 text-gray-300 dark:text-gray-700"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
+            Welcome to Documentation
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Select a page from the sidebar to get started, or click the New Tab button to create a
+            new tab.
+          </p>
+          <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-500">
+            <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-xs font-mono">
+              ←
+            </kbd>
+            <span>Browse the sidebar</span>
+          </div>
+        </div>
+      </div>
+    );
   }
-}
 
-/**
- * Home page - renders the intro/default content
- */
-export default async function Home() {
-  // Load the intro/default content
-  const { content } = await parseMarkdownFile('intro');
-
-  return (
-    <article className="prose prose-slate max-w-none dark:prose-invert">
-      <MarkdownRenderer content={content} />
-    </article>
-  );
+  // If tabs exist, don't render anything (content will be shown via routing)
+  return null;
 }
