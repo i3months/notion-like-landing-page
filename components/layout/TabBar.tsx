@@ -63,7 +63,7 @@ export function TabBar() {
                 onContextMenu={(e) => handleContextMenu(e, tab.id)}
                 className={`
                 group flex items-center gap-2 px-3 py-1.5 rounded-md cursor-pointer
-                transition-colors min-w-[120px] max-w-[200px]
+                transition-colors w-[180px] flex-shrink-0
                 ${
                   isActive
                     ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
@@ -71,7 +71,7 @@ export function TabBar() {
                 }
               `}
               >
-                <span className="flex-1 truncate text-sm font-medium">{tab.title}</span>
+                <span className="flex-1 truncate text-sm font-medium min-w-0">{tab.title}</span>
                 <button
                   onClick={(e) => handleTabClose(e, tab.id)}
                   className={`
