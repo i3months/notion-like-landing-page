@@ -68,9 +68,9 @@ _Italic Text_
 
 ### External Images (Placeholder)
 
-![Alt Text](https://via.placeholder.com/150)
+![Alt Text](https://placehold.co/150x150/png)
 
-![Image with Title](https://via.placeholder.com/200 'Image Title')
+![Image with Title](https://placehold.co/200x200/png 'Image Title')
 
 ### Local Image Test
 
