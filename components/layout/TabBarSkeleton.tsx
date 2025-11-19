@@ -1,23 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+
+// Read tab count from localStorage synchronously
+function getInitialTabCount(): number {
+  if (typeof window === 'undefined') return 3;
+
+  try {
+    const stored = localStorage.getItem('tab-storage');
+    if (stored) {
+      const data = JSON.parse(stored);
+      const count = data.state?.tabs?.length || 3;
+      return Math.max(1, count); // Minimum 1 tab
+    }
+  } catch (error) {
+    // Use default value on error
+  }
+  return 3;
+}
 
 export function TabBarSkeleton() {
-  const [tabCount, setTabCount] = useState(3); // Default to 3 tabs
-
-  useEffect(() => {
-    // Read actual tab count from localStorage
-    try {
-      const stored = localStorage.getItem('tab-storage');
-      if (stored) {
-        const data = JSON.parse(stored);
-        const count = data.state?.tabs?.length || 3;
-        setTabCount(Math.max(1, count)); // Minimum 1 tab
-      }
-    } catch (error) {
-      // Use default value on error
-    }
-  }, []);
+  const [tabCount] = useState(getInitialTabCount);
 
   return (
     <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 overflow-x-auto px-2 py-1">
