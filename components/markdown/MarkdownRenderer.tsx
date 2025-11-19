@@ -112,7 +112,16 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             {children}
           </blockquote>
         ),
-        code: ({ inline, className, children, ...props }: any) => {
+        code: ({
+          inline,
+          className,
+          children,
+          ...props
+        }: {
+          inline?: boolean;
+          className?: string;
+          children?: React.ReactNode;
+        }) => {
           // Only handle inline code here
           // Block code is handled by the pre component
           if (inline) {
@@ -134,18 +143,21 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
             </code>
           );
         },
-        pre: ({ children }: any) => {
+        pre: ({ children }: { children?: React.ReactNode }) => {
           // Extract code content and language from children
           const childArray = React.Children.toArray(children);
-          const codeElement = childArray[0] as any;
+          const codeElement = childArray[0] as React.ReactElement<{
+            className?: string;
+            children?: React.ReactNode;
+          }>;
 
           // Helper function to extract text content from children
-          const extractText = (node: any): string => {
+          const extractText = (node: React.ReactNode): string => {
             if (typeof node === 'string') return node;
             if (typeof node === 'number') return String(node);
             if (Array.isArray(node)) return node.map(extractText).join('');
             if (React.isValidElement(node)) {
-              const props = node.props as any;
+              const props = node.props as { children?: React.ReactNode };
               if (props?.children) {
                 return extractText(props.children);
               }

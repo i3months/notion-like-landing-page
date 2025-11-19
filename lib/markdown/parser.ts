@@ -9,7 +9,7 @@ export interface ParsedMarkdown {
   /** Markdown content without frontmatter */
   content: string;
   /** Parsed frontmatter metadata as key-value pairs */
-  frontmatter: Record<string, any>;
+  frontmatter: Record<string, unknown>;
 }
 
 /**
