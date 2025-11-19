@@ -1,5 +1,6 @@
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+import rehypeRaw from 'rehype-raw';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import rehypeKatex from 'rehype-katex';
@@ -20,6 +21,8 @@ export const remarkPlugins = [
  * Rehype plugins transform the HTML AST after Markdown conversion
  */
 export const rehypePlugins = [
+  // Parse raw HTML in markdown
+  rehypeRaw,
   // Add IDs to headings for anchor links
   rehypeSlug,
   // Syntax highlighting for code blocks
