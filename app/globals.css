@@ -5,7 +5,63 @@
 /* Import theme CSS variables */
 @import '../styles/theme.css';
 
+/* SUITE Font Family */
+@font-face {
+  font-family: 'SUITE';
+  font-weight: 200;
+  src: url('/fonts/SUITE/SUITE-Light.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUITE';
+  font-weight: 400;
+  src: url('/fonts/SUITE/SUITE-Regular.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUITE';
+  font-weight: 500;
+  src: url('/fonts/SUITE/SUITE-Medium.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUITE';
+  font-weight: 600;
+  src: url('/fonts/SUITE/SUITE-SemiBold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUITE';
+  font-weight: 700;
+  src: url('/fonts/SUITE/SUITE-Bold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUITE';
+  font-weight: 800;
+  src: url('/fonts/SUITE/SUITE-ExtraBold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SUITE';
+  font-weight: 900;
+  src: url('/fonts/SUITE/SUITE-Heavy.woff2') format('woff2');
+  font-display: swap;
+}
+
 body {
+  font-family:
+    'SUITE',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   color: var(--color-text);
   background: var(--color-background);
   transition:
