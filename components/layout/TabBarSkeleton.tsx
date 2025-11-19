@@ -1,8 +1,28 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
 export function TabBarSkeleton() {
+  const [tabCount, setTabCount] = useState(3); // Default to 3 tabs
+
+  useEffect(() => {
+    // Read actual tab count from localStorage
+    try {
+      const stored = localStorage.getItem('tab-storage');
+      if (stored) {
+        const data = JSON.parse(stored);
+        const count = data.state?.tabs?.length || 3;
+        setTabCount(Math.max(1, count)); // Minimum 1 tab
+      }
+    } catch (error) {
+      // Use default value on error
+    }
+  }, []);
+
   return (
     <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 overflow-x-auto px-2 py-1">
-      {/* Skeleton tabs */}
-      {[1, 2, 3].map((i) => (
+      {/* Skeleton tabs - matches actual tab count */}
+      {Array.from({ length: tabCount }).map((_, i) => (
         <div
           key={i}
           className="flex items-center gap-2 px-3 py-1.5 rounded-md w-[180px] flex-shrink-0 bg-gray-50 dark:bg-gray-800/50 animate-pulse"
