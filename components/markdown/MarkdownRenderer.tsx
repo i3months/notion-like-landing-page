@@ -111,23 +111,44 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
           </blockquote>
         ),
         code: ({ inline, className, children, ...props }: any) => {
-          const match = /language-(\w+)/.exec(className || '');
-          const language = match ? match[1] : '';
-
-          if (!inline && language) {
-            return <CodeBlock language={language} code={String(children).replace(/\n$/, '')} />;
+          // Only handle inline code here
+          // Block code is handled by the pre component
+          if (inline) {
+            return (
+              <code
+                className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-gray-800 dark:text-gray-200"
+                {...props}
+              >
+                {children}
+              </code>
+            );
           }
 
+          // For block code, just return the code element
+          // The pre component will handle the CodeBlock rendering
           return (
-            <code
-              className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-gray-800 dark:text-gray-200"
-              {...props}
-            >
+            <code className={className} {...props}>
               {children}
             </code>
           );
         },
-        pre: ({ children }) => <>{children}</>,
+        pre: ({ children }: any) => {
+          // Extract code content and language from children
+          const childArray = React.Children.toArray(children);
+          const codeElement = childArray[0] as any;
+
+          if (codeElement?.props?.className) {
+            const match = /language-(\w+)/.exec(codeElement.props.className || '');
+            const language = match ? match[1] : 'text';
+            const code = String(codeElement.props.children).replace(/\n$/, '');
+
+            return <CodeBlock language={language} code={code} />;
+          }
+
+          // Fallback for code blocks without language
+          const code = String(codeElement?.props?.children || '').replace(/\n$/, '');
+          return <CodeBlock language="text" code={code} />;
+        },
         img: ({ src, alt }) => (
           <img src={src} alt={alt || ''} className="max-w-full h-auto rounded-lg my-4" />
         ),
