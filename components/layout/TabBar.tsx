@@ -23,6 +23,8 @@ export function TabBar() {
   );
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dropPosition, setDropPosition] = useState<'before' | 'after' | null>(null);
+  const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
   const tabBarRef = useRef<HTMLDivElement>(null);
 
   const handleNewTab = () => {
@@ -76,41 +78,78 @@ export function TabBar() {
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIndex(index);
+    setDragPosition({ x: e.clientX, y: e.clientY });
     e.dataTransfer.effectAllowed = 'move';
-    // Set a transparent drag image for better UX
-    if (e.dataTransfer.setDragImage) {
-      const dragImage = document.createElement('div');
-      dragImage.style.opacity = '0';
-      document.body.appendChild(dragImage);
-      e.dataTransfer.setDragImage(dragImage, 0, 0);
-      setTimeout(() => document.body.removeChild(dragImage), 0);
+    // Create a custom drag image that's invisible
+    const img = new Image();
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    e.dataTransfer.setDragImage(img, 0, 0);
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    if (e.clientX !== 0 && e.clientY !== 0) {
+      setDragPosition({ x: e.clientX, y: e.clientY });
     }
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    if (draggedIndex !== null && draggedIndex !== index) {
-      setDragOverIndex(index);
+
+    if (draggedIndex === null || draggedIndex === index) {
+      setDragOverIndex(null);
+      setDropPosition(null);
+      return;
     }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const midPoint = rect.left + rect.width / 2;
+    const position = e.clientX < midPoint ? 'before' : 'after';
+
+    setDragOverIndex(index);
+    setDropPosition(position);
   };
 
   const handleDragLeave = () => {
     setDragOverIndex(null);
+    setDropPosition(null);
   };
 
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    if (draggedIndex !== null && draggedIndex !== dropIndex) {
-      reorderTabs(draggedIndex, dropIndex);
+
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      setDropPosition(null);
+      setDragPosition(null);
+      return;
     }
+
+    let targetIndex = dropIndex;
+
+    // Adjust target index based on drop position
+    if (dropPosition === 'after') {
+      targetIndex = dropIndex + 1;
+    }
+
+    // Adjust for the removed item
+    if (draggedIndex < targetIndex) {
+      targetIndex -= 1;
+    }
+
+    reorderTabs(draggedIndex, targetIndex);
     setDraggedIndex(null);
     setDragOverIndex(null);
+    setDropPosition(null);
+    setDragPosition(null);
   };
 
   const handleDragEnd = () => {
     setDraggedIndex(null);
     setDragOverIndex(null);
+    setDropPosition(null);
+    setDragPosition(null);
   };
 
   // Detect clicks outside context menu
@@ -135,53 +174,99 @@ export function TabBar() {
       {tabs.map((tab, index) => {
         const isActive = tab.id === activeTabId;
         const isDragging = draggedIndex === index;
-        const isDragOver = dragOverIndex === index;
+        const showDropIndicator = dragOverIndex === index && !isDragging;
 
         return (
-          <div
-            key={tab.id}
-            draggable
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragOver={(e) => handleDragOver(e, index)}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, index)}
-            onDragEnd={handleDragEnd}
-            onClick={() => handleTabClick(tab.id, tab.path)}
-            onContextMenu={(e) => handleContextMenu(e, tab.id)}
-            className={`
-                group flex items-center gap-2 px-3 py-1.5 rounded-md cursor-pointer
-                transition-all w-[180px] flex-shrink-0
+          <div key={tab.id} className="relative flex items-center">
+            {/* Drop indicator - before */}
+            {showDropIndicator && dropPosition === 'before' && (
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-0.5 h-8 bg-blue-500 rounded-full z-10 shadow-lg shadow-blue-500/50" />
+            )}
+
+            <div
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDrag={handleDrag}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, index)}
+              onDragEnd={handleDragEnd}
+              onClick={() => handleTabClick(tab.id, tab.path)}
+              onContextMenu={(e) => handleContextMenu(e, tab.id)}
+              style={{
+                cursor: isDragging ? 'grabbing' : 'grab',
+              }}
+              className={`
+                group flex items-center gap-2 px-3 py-1.5 rounded-md
+                transition-all duration-150 w-[180px] flex-shrink-0 relative
                 ${
                   isActive
                     ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm'
                     : 'bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
                 }
-                ${isDragging ? 'opacity-50' : 'opacity-100'}
-                ${isDragOver ? 'border-l-2 border-blue-500' : ''}
+                ${isDragging ? 'opacity-20' : 'opacity-100'}
               `}
-          >
-            <span className="flex-1 truncate text-sm font-medium min-w-0">{tab.title}</span>
-            <button
-              onClick={(e) => handleTabClose(e, tab.id)}
-              className={`
+            >
+              <span className="flex-1 truncate text-sm font-medium min-w-0 pointer-events-none select-none">
+                {tab.title}
+              </span>
+              <button
+                onClick={(e) => handleTabClose(e, tab.id)}
+                style={{ cursor: 'pointer' }}
+                className={`
                   flex-shrink-0 p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600
                   transition-opacity
                   ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                 `}
-              aria-label="Close tab"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+                aria-label="Close tab"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Drop indicator - after */}
+            {showDropIndicator && dropPosition === 'after' && (
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-0.5 h-8 bg-blue-500 rounded-full z-10 shadow-lg shadow-blue-500/50" />
+            )}
           </div>
         );
       })}
+
+      {/* Floating dragged tab */}
+      {draggedIndex !== null && dragPosition && (
+        <div
+          className="fixed pointer-events-none z-50"
+          style={{
+            left: dragPosition.x,
+            top: dragPosition.y,
+            transform: 'translate(-50%, -50%)',
+          }}
+        >
+          <div
+            className={`
+              flex items-center gap-2 px-3 py-1.5 rounded-md w-[180px]
+              shadow-2xl scale-105 opacity-80
+              ${
+                tabs[draggedIndex]?.id === activeTabId
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                  : 'bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400'
+              }
+            `}
+          >
+            <span className="flex-1 truncate text-sm font-medium min-w-0 select-none">
+              {tabs[draggedIndex]?.title}
+            </span>
+            <div className="flex-shrink-0 w-4 h-4" />
+          </div>
+        </div>
+      )}
 
       {/* New Tab Button */}
       <button
