@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useState } from 'react';
 import { NavigationItem } from '@/lib/payload/types';
-import { useTabStore } from '@/lib/store/tabStore';
 import { Sidebar } from './Sidebar';
 import { MobileMenu } from './MobileMenu';
 import { TabBar } from './TabBar';
@@ -47,8 +45,6 @@ interface PageLayoutProps {
  */
 export function PageLayout({ navigation, children }: PageLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
-  const { activeTabId } = useTabStore();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -57,48 +53,6 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-
-  // Sync active tab with current URL when pathname changes
-  useEffect(() => {
-    if (!activeTabId) return;
-
-    // Remove leading and trailing slashes
-    const currentPath = pathname === '/' ? '' : pathname.slice(1).replace(/\/$/, '');
-
-    // Get the latest state
-    const { tabs, updateTabPath } = useTabStore.getState();
-    const activeTab = tabs.find((tab) => tab.id === activeTabId);
-
-    if (!activeTab) return;
-
-    // Home page - reset to "New Tab" if the tab has a different path
-    const isHomePage = currentPath === '';
-    if (isHomePage) {
-      if (activeTab.path !== '') {
-        updateTabPath(activeTabId, '', 'New Tab');
-      }
-      return;
-    }
-
-    // Find navigation item that matches current path
-    const findNavItem = (items: NavigationItem[], path: string): NavigationItem | null => {
-      for (const item of items) {
-        if (item.path === path) return item;
-        if (item.children) {
-          const found = findNavItem(item.children, path);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-
-    const navItem = findNavItem(navigation, currentPath);
-
-    if (navItem && activeTab.path !== currentPath) {
-      // Regular page - update to match navigation item
-      updateTabPath(activeTabId, currentPath, navItem.name);
-    }
-  }, [pathname, activeTabId, navigation]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
