@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useState } from 'react';
 import { NavigationItem } from '@/lib/payload/types';
 import { Sidebar } from './Sidebar';
 import { MobileMenu } from './MobileMenu';
 import { TabBar } from './TabBar';
+import { NavigationButtons } from './NavigationButtons';
 import { Breadcrumb } from './Breadcrumb';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useTabStore } from '@/lib/store/tabStore';
 
 /**
  * Props for the PageLayout component
@@ -47,8 +46,6 @@ interface PageLayoutProps {
  */
 export function PageLayout({ navigation, children }: PageLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
-  const { tabs, activeTabId, addTab, updateTabPath, hasHydrated } = useTabStore();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -57,79 +54,6 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-
-  // Helper function to find navigation item by path
-  const findNavigationItemByPath = (
-    items: NavigationItem[],
-    path: string,
-  ): NavigationItem | null => {
-    // Normalize path by removing trailing slash
-    const normalizedPath = path.replace(/\/$/, '');
-
-    for (const item of items) {
-      // Skip items without a path (category items)
-      if (!item.path) {
-        // Still search in children
-        if (item.children) {
-          const found = findNavigationItemByPath(item.children, path);
-          if (found) return found;
-        }
-        continue;
-      }
-
-      // Normalize item path
-      const normalizedItemPath = item.path.replace(/\/$/, '');
-      if (normalizedItemPath === normalizedPath) {
-        return item;
-      }
-
-      // Search in children
-      if (item.children) {
-        const found = findNavigationItemByPath(item.children, path);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
-
-  // Sync URL with tab state - URL is the source of truth
-  useEffect(() => {
-    // Wait for hydration to complete
-    if (!hasHydrated) return;
-
-    // Normalize path by removing leading slash and trailing slash
-    const currentPath = pathname === '/' ? '' : pathname.slice(1).replace(/\/$/, '');
-    const navItem = findNavigationItemByPath(navigation, currentPath);
-    const title = navItem?.name || 'New Tab';
-
-    // If no tabs exist, create one for the current path
-    if (tabs.length === 0) {
-      addTab({ title, path: currentPath });
-      return;
-    }
-
-    // Check if active tab matches current path
-    const activeTab = tabs.find((tab) => tab.id === activeTabId);
-
-    if (activeTab && activeTab.path === currentPath) {
-      // Active tab already matches, just update title if needed
-      if (activeTab.title === 'New Tab' && navItem) {
-        updateTabPath(activeTab.id, currentPath, title);
-      }
-      return;
-    }
-
-    // URL changed - always update the active tab (don't switch to other tabs)
-    if (activeTabId) {
-      updateTabPath(activeTabId, currentPath, title);
-    } else if (tabs.length > 0) {
-      // No active tab, update first tab
-      updateTabPath(tabs[0].id, currentPath, title);
-    } else {
-      // Fallback: create new tab
-      addTab({ title, path: currentPath });
-    }
-  }, [pathname, hasHydrated]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -166,9 +90,10 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
 
         {/* Main content area */}
         <main className="flex-1 min-w-0 flex flex-col">
-          {/* Tab bar - fixed at top */}
+          {/* Tab bar and navigation - fixed at top */}
           <div className="sticky top-0 z-20 bg-white dark:bg-gray-950">
             <TabBar />
+            <NavigationButtons />
             <Breadcrumb navigation={navigation} />
           </div>
 
