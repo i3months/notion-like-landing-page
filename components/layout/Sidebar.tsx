@@ -52,7 +52,7 @@ function NavigationItemComponent({
 }: NavigationItemComponentProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const router = useRouter();
-  const { activeTabId, tabs, updateTabPath } = useTabStore();
+  const { activeTabId, tabs } = useTabStore();
   const hasChildren = item.children && item.children.length > 0;
 
   // Get the active tab's path
@@ -72,18 +72,18 @@ function NavigationItemComponent({
   const handleLinkClick = (e: React.MouseEvent) => {
     if (item.path) {
       e.preventDefault();
-      const { tabs, addTab: storeAddTab } = useTabStore.getState();
+      const { tabs, addTab: storeAddTab, navigateInHistory } = useTabStore.getState();
 
       if (activeTabId) {
-        // Always update the active tab's path and title
-        updateTabPath(activeTabId, item.path, item.name);
+        // Add to history and update the active tab's path and title
+        navigateInHistory(activeTabId, item.path, item.name);
       } else if (tabs.length === 0) {
         // No tabs at all, create a new one
         storeAddTab({ title: item.name, path: item.path });
       } else if (tabs.length > 0) {
         // Tabs exist but no active tab, update the first tab
         const firstTab = tabs[0];
-        updateTabPath(firstTab.id, item.path, item.name);
+        navigateInHistory(firstTab.id, item.path, item.name);
       }
       router.push(`/${item.path}`);
     }

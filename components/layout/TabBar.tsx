@@ -34,7 +34,7 @@ export function TabBar() {
 
   const handleTabClick = (tabId: string, path: string) => {
     setActiveTab(tabId);
-    // Use router.push to add to browser history
+    // Navigate to the tab's current path
     router.push(`/${path}`);
   };
 
