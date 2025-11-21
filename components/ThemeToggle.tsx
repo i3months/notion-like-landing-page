@@ -7,7 +7,7 @@ interface ThemeToggleProps {
 }
 
 export function ThemeToggle({ className = 'w-5 h-5' }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<'light' | 'dark' | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
     // Get initial theme from localStorage or system preference
@@ -17,7 +17,8 @@ export function ThemeToggle({ className = 'w-5 h-5' }: ThemeToggleProps) {
       document.documentElement.classList.toggle('dark', stored === 'dark');
     } else {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
+      const initialTheme = prefersDark ? 'dark' : 'light';
+      setTheme(initialTheme);
       document.documentElement.classList.toggle('dark', prefersDark);
     }
   }, []);
@@ -28,9 +29,6 @@ export function ThemeToggle({ className = 'w-5 h-5' }: ThemeToggleProps) {
     localStorage.setItem('theme', newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
-
-  // Don't render until we know the theme (prevents flash)
-  if (!theme) return null;
 
   return (
     <button
