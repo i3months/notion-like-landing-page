@@ -197,24 +197,24 @@ export function MobileMenu({ navigation, isOpen, onClose }: MobileMenuProps) {
         } overflow-y-auto`}
       >
         <div className="p-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Navigation</h2>
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 active:bg-gray-100 dark:active:bg-gray-800 rounded-md transition-colors touch-manipulation"
-              aria-label="Close menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
           <nav>
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex-1" />
+              <button
+                onClick={onClose}
+                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 active:bg-gray-100 dark:active:bg-gray-800 rounded-md transition-colors touch-manipulation"
+                aria-label="Close menu"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
             {navigation.map((item, index) => (
               <MobileNavigationItem
                 key={`${item.name}-${index}`}
