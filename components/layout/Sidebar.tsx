@@ -28,6 +28,28 @@ interface NavigationItemComponentProps {
   level: number;
   /** Array of booleans indicating which levels should show vertical lines */
   parentLines?: boolean[];
+  /** Background color inherited from parent */
+  backgroundColor?: string;
+}
+
+/**
+ * Calculate luminance of a color to determine if it's light or dark
+ * Returns true if the color is light (needs dark text)
+ */
+function isLightColor(hexColor: string): boolean {
+  // Remove # if present
+  const hex = hexColor.replace('#', '');
+
+  // Convert to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  // Calculate relative luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  // Return true if light (luminance > 0.5)
+  return luminance > 0.5;
 }
 
 /**
@@ -49,11 +71,32 @@ function NavigationItemComponent({
   currentPath,
   level,
   parentLines = [],
+  backgroundColor,
 }: NavigationItemComponentProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const router = useRouter();
   const { activeTabId, tabs } = useTabStore();
   const hasChildren = item.children && item.children.length > 0;
+
+  // Use item's color if defined, otherwise inherit from parent
+  const bgColor = item.color || backgroundColor;
+
+  // Determine if background is light or dark
+  const isLight = bgColor ? isLightColor(bgColor) : true;
+
+  // Get text colors based on background
+  const textColor = isLight ? 'rgb(31, 41, 55)' : 'rgb(243, 244, 246)'; // gray-800 : gray-100
+  const lineColor = isLight ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)';
+
+  // Adjust opacity for dark mode
+  const getBgStyle = (isTopLevel: boolean) => {
+    if (!bgColor) return undefined;
+
+    return {
+      backgroundColor: bgColor,
+      ...(isTopLevel && { padding: '8px', borderRadius: '6px' }),
+    };
+  };
 
   // Get the active tab's path
   const activeTab = tabs.find((tab) => tab.id === activeTabId);
@@ -90,15 +133,18 @@ function NavigationItemComponent({
   };
 
   return (
-    <div className="relative">
-      <div className="flex items-center relative">
+    <div className="relative" style={level === 0 ? getBgStyle(true) : undefined}>
+      <div className="flex items-center relative" style={level > 0 ? getBgStyle(false) : undefined}>
         {/* Vertical lines for tree structure */}
         {level > 0 && (
           <div className="absolute left-0 top-0 bottom-0 flex">
             {parentLines.map((showLine, idx) => (
               <div key={idx} className="relative" style={{ width: '20px' }}>
                 {showLine && (
-                  <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 dark:bg-gray-700" />
+                  <div
+                    className="absolute left-1/2 top-0 bottom-0 w-px"
+                    style={{ backgroundColor: bgColor ? lineColor : undefined }}
+                  />
                 )}
               </div>
             ))}
@@ -112,7 +158,12 @@ function NavigationItemComponent({
           {hasChildren && (
             <button
               onClick={handleToggle}
-              className="mr-1 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors touch-manipulation flex-shrink-0"
+              className={`mr-1 p-1 rounded transition-colors touch-manipulation flex-shrink-0 ${
+                !bgColor
+                  ? 'text-gray-700 hover:text-gray-900 dark:text-gray-800 dark:hover:text-gray-600 hover:bg-black/5 dark:hover:bg-white/10'
+                  : ''
+              }`}
+              style={bgColor ? { color: textColor } : undefined}
               aria-label={isExpanded ? 'Collapse' : 'Expand'}
               aria-expanded={isExpanded}
             >
@@ -128,17 +179,21 @@ function NavigationItemComponent({
               className={`flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
                 isActive
                   ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700'
+                  : !bgColor
+                    ? 'text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 active:bg-black/10 dark:active:bg-white/20'
+                    : ''
               } ${!hasChildren ? 'ml-5' : ''}`}
+              style={bgColor && !isActive ? { color: textColor } : undefined}
             >
               {item.icon && <span className="mr-2">{item.icon}</span>}
               {item.name}
             </Link>
           ) : (
             <div
-              className={`flex-1 px-2 py-1 text-sm font-semibold text-gray-900 dark:text-gray-100 ${
-                !hasChildren ? 'ml-5' : ''
-              }`}
+              className={`flex-1 px-2 py-1 text-sm font-semibold ${
+                !bgColor ? 'text-gray-900 dark:text-gray-100' : ''
+              } ${!hasChildren ? 'ml-5' : ''}`}
+              style={bgColor ? { color: textColor } : undefined}
             >
               {item.icon && <span className="mr-2">{item.icon}</span>}
               {item.name}
@@ -147,7 +202,7 @@ function NavigationItemComponent({
         </div>
       </div>
       {hasChildren && isExpanded && (
-        <div>
+        <div style={getBgStyle(false)}>
           {item.children!.map((child, index) => {
             const newParentLines = [...parentLines, true];
 
@@ -158,6 +213,7 @@ function NavigationItemComponent({
                 currentPath={currentPath}
                 level={level + 1}
                 parentLines={newParentLines}
+                backgroundColor={bgColor}
               />
             );
           })}
@@ -332,16 +388,17 @@ export function Sidebar({ navigation }: SidebarProps) {
 
       {/* Navigation */}
       {!sidebarCollapsed && (
-        <nav className="p-2">
+        <nav className="p-2 space-y-2">
           {filteredNavigation.length > 0 ? (
             filteredNavigation.map((item, index) => (
-              <NavigationItemComponent
-                key={`${item.name}-${index}`}
-                item={item}
-                currentPath={currentPath}
-                level={0}
-                parentLines={[]}
-              />
+              <div key={`${item.name}-${index}`} className="rounded-md overflow-hidden">
+                <NavigationItemComponent
+                  item={item}
+                  currentPath={currentPath}
+                  level={0}
+                  parentLines={[]}
+                />
+              </div>
             ))
           ) : (
             <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
