@@ -38,6 +38,7 @@ export const payload: Payload = {
     },
     {
       name: 'Tutorials',
+      color: '#fed7aa',
       children: [
         {
           name: 'Beginner',
@@ -61,6 +62,7 @@ export const payload: Payload = {
     },
     {
       name: 'Guides',
+      color: '#fef08a',
       children: [
         {
           name: 'Quick Start',
@@ -100,6 +102,7 @@ export const payload: Payload = {
     },
     {
       name: 'API Reference',
+      color: '#bfdbfe',
       children: [
         {
           name: 'Overview',
